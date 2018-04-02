@@ -1,0 +1,52 @@
+#!/bin/bash
+
+hue() {
+  path=$1
+
+  get_colors
+  convert_colors
+  print_colors
+  #adjust_colors
+}
+
+get_colors() {
+  colors=($(convert "$path" +dither -colors 6 -unique-colors txt:- | grep -E -o " \#.{6}"))
+}
+
+convert_colors() {
+  colors_256=()
+  for i in "${!colors[@]}"
+  do
+    color=${colors[$i]}
+    colors_256[$i]=$(hex_to_256 ${color})
+  done
+}
+
+print_256() {
+  printf '%s\n' "${colors_256[@]}"
+}
+
+print_hex() {
+  printf '%s\n' "${colors[@]}"
+}
+
+print_colors() {
+  for i in "${!colors[@]}"
+  do
+    print_color ${colors_256[$i]} ${colors[$i]}
+  done
+}
+
+print_color() {
+  printf '\e[48;5;%sm %s \e[0m\n' $1 $2
+}
+
+hex_to_256() {
+  hex=${1#'#'}
+  r=$(printf '0x%0.2s' "$hex")
+  g=$(printf '0x%0.2s' ${hex#??})
+  b=$(printf '0x%0.2s' ${hex#????})
+  printf '%03d\n' "$(( (r<75?0:(r-35)/40)*6*6 +
+                     (g<75?0:(g-35)/40)*6   +
+                     (b<75?0:(b-35)/40)     + 16 ))"
+}
