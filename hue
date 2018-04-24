@@ -2,11 +2,56 @@
 
 hue() {
   path=$1
+  ext=${path##*.}
+  file=${path##*/}
+  theme=${file%.*}
 
+  printf "🌿  Generating colors...\n"
   get_colors
-  convert_colors
-  print_colors
-  #adjust_colors
+  printf "🌿  Setting colors...\n"
+  set_colors
+  printf "🌿  Generating file...\n"
+  create_file
+  printf "🌿  Opening file...\n"
+  open_file
+
+
+  # print_hex
+  # convert_colors
+  # print_colors
+  # print_256
+  # create_file
+  # adjust_colors
+}
+
+set_colors() {
+  black="${colors[0]}"
+  grey="${colors[1]}"
+  red="${colors[2]}"
+  green="${colors[3]}"
+  blue="${colors[4]}"
+  white="${colors[5]}"
+}
+
+open_file() {
+  open "$page"
+}
+
+create_file() {
+  page="$HOME/.hue/themes/$theme/$theme.html"
+  mkdir -p "$HOME/.hue/themes/$theme/"
+  cp "$path" "$HOME/.hue/themes/$theme/wal.$ext"
+  cp html/template.html "$page"
+
+  sed -i '' "s/{{black}}/$black/g" "$page"
+  sed -i '' "s/{{grey}}/$grey/g" "$page"
+  sed -i '' "s/{{red}}/$red/g" "$page"
+  sed -i '' "s/{{green}}/$green/g" "$page"
+  sed -i '' "s/{{blue}}/$blue/g" "$page"
+  sed -i '' "s/{{white}}/$white/g" "$page"
+
+  sed -i '' "s/{{path}}/wal.jpg/g" "$page"
+  sed -i '' "s/{{theme}}/$theme/g" "$page"
 }
 
 get_colors() {
