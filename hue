@@ -2,18 +2,21 @@
 
 hue_activate() {
 
+  # hue activate was called without theme name.
   if [ -z $1 ]; then
     print_header "activate"
     printf "  Cannot activate an unspecified theme.\n\n"
     return;
   fi
 
+  # Specified theme has not been generated.
   if [ ! -d $HOME/.hue/themes/$1/ ]; then
     print_header "activate"
     printf "  Theme does not exist.\n\n"
     return;
   fi
 
+  # Symlink the active directory into ~/.hue/active
   rm "$HOME/.hue/active" 2> /dev/null
   ln -s $HOME/.hue/themes/$1/ $HOME/.hue/active
 
@@ -21,14 +24,32 @@ hue_activate() {
 }
 
 hue_delete() {
-  printf "Deleting $1\n"
+
+  # hue delete was called without theme name.
+  if [ -z $1 ]; then
+    print_header "delete"
+    printf "  Cannot delete an unspecified theme.\n\n"
+    return;
+  fi
+
+  # Specified theme has not been generated.
+  if [ ! -d $HOME/.hue/themes/$1/ ]; then
+    print_header "delete"
+    printf "  Theme does not exist.\n\n"
+    return;
+  fi
+
+  rm -rf $HOME/.hue/themes/$1/
+
+  printf "\n  🌿  $1 was deleted.\n\n"
 }
 
 hue_create() {
 
+  # Specified image cannot be found.
   if [ ! -f $1 ]; then
     print_header "create"
-    printf "  File not found.\n\n"
+    printf "  Image not found.\n\n"
     return
   fi
 
@@ -37,10 +58,12 @@ hue_create() {
   file=${path##*/}
   theme=${file%.*}
 
+  # Ensure ~/.hue/themes/ exists.
   if [ ! -d $HOME/.hue/themes/ ]; then
     mkdir -p "$HOME/.hue/themes/"
   fi
 
+  # Handle theme conflicts.
   if [ -d $HOME/.hue/themes/$theme/ ]; then
     print_header "create"
     printf "  Theme already exists. Replace it? [y/n]: "
@@ -65,9 +88,9 @@ hue_create() {
 
 hue_open() {
 
-  # If no theme specified, open active one.
+  # If no theme specified, open active URL.
   if [ -z $1 ]; then
-    printf "\n  🌿  Opening theme file...\\nn"
+    printf "\n  🌿  Opening theme file...\n\n"
     open "$HOME/.hue/active/index.html"
     return
   fi
@@ -85,12 +108,32 @@ hue_open() {
 }
 
 hue_copy() {
-  printf "Copying $1\n"
+
+  # If no theme specified, copy active URL.
+  if [ -z $1 ]; then
+    printf "\n  🌿  Copied active theme file.\n\n"
+    printf "$HOME/.hue/active/index.html" | pbcopy
+    return
+  fi
+
+  # Specified theme has not been generated.
+  if [ ! -d $HOME/.hue/themes/$1/ ]; then
+    print_header "copy"
+    printf "  Theme does not exist.\n\n"
+    return
+  fi
+
+  printf "$HOME/.hue/themes/$1/index.html" | pbcopy
+  printf "\n  🌿  Copied theme file.\n\n"
 }
 
 hue_list() {
   print_header "list"
   ls "$HOME/.hue/themes/"
+}
+
+hue_version() {
+  hue_-v
 }
 
 hue() {
