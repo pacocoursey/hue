@@ -1,0 +1,53 @@
+#!/bin/bash
+
+print_header() {
+  if [ -z $1 ]; then
+    printf "\n  🌿  \033[1mhue\033[0m\n\n"
+  else
+    printf "\n  🌿  \033[1mhue:$1\033[0m\n\n"
+  fi
+}
+
+
+hue_help() {
+  print_header
+  printf "  \033[1mUsage\033[0m:\n\n"
+  printf "    hue [<flags>] <command> [<args> ...]\n\n"
+  printf "  \033[1mFlags\033[0m:\n\n"
+  printf "    -h, --help    \t Output usage information.\n"
+  printf "    -v, --version \t Show application version.\n\n"
+  printf "  \033[1mCommands\033[0m:\n\n"
+  printf "    help     \t\t Show help for a command.\n"
+  printf "    create   \t\t Create a new theme.\n"
+  printf "    delete   \t\t Delete an existing theme.\n"
+  printf "    activate \t\t Set an existing theme as active.\n"
+  printf "    open     \t\t Open the web page for the theme.\n"
+  printf "    copy     \t\t Copy the web page URL for the theme.\n"
+  printf "    version  \t\t Show application version.\n\n"
+  printf "  \033[1mExamples\033[0m:\n\n"
+  printf "    Create a new theme.\n"
+  printf "    $ hue create /path/to/image\n\n"
+  printf "    Delete the hazel theme.\n"
+  printf "    $ hue delete hazel\n\n"
+  printf "    Activate the lily theme.\n"
+  printf "    $ hue activate lily\n\n"
+  printf "    Open the web page for the active theme.\n"
+  printf "    $ hue open\n\n"
+}
+
+hue_-v() {
+  printf "$version\n"
+}
+
+hue_-h() {
+  hue_help
+}
+
+unknown() {
+  print_header
+  if [ -z $1 ]; then
+    printf "  No command given. See '\033[1mhue help\033[0m'.\n\n"
+  else
+    printf "  \033[1m$1\033[0m is not a hue command. See '\033[1mhue help\033[0m'.\n\n"
+  fi
+}

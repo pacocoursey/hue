@@ -1,20 +1,109 @@
 #!/bin/bash
 
-hue() {
+hue_activate() {
+
+  if [ -z $1 ]; then
+    print_header "activate"
+    printf "  Cannot activate an unspecified theme.\n\n"
+    return;
+  fi
+
+  if [ ! -d $HOME/.hue/themes/$1/ ]; then
+    print_header "activate"
+    printf "  Theme does not exist.\n\n"
+    return;
+  fi
+
+  rm "$HOME/.hue/active" 2> /dev/null
+  ln -s $HOME/.hue/themes/$1/ $HOME/.hue/active
+
+  printf "\n  🌿  $1 was activated.\n\n"
+}
+
+hue_delete() {
+  printf "Deleting $1\n"
+}
+
+hue_create() {
+
+  if [ ! -f $1 ]; then
+    print_header "create"
+    printf "  File not found.\n\n"
+    return
+  fi
+
   path=$1
   ext=${path##*.}
   file=${path##*/}
   theme=${file%.*}
 
-  printf "🌿  Generating colors...\n"
-  get_colors
-  printf "🌿  Setting colors...\n"
-  set_colors
-  printf "🌿  Generating file...\n"
-  create_file
-  printf "🌿  Opening file...\n"
-  open_file
+  if [ ! -d $HOME/.hue/themes/ ]; then
+    mkdir -p "$HOME/.hue/themes/"
+  fi
 
+  if [ -d $HOME/.hue/themes/$theme/ ]; then
+    print_header "create"
+    printf "  Theme already exists. Replace it? [y/n]: "
+    read replace
+
+    if [ $replace != "y" ]; then
+      printf "  Theme was not changed.\n\n"
+      return
+    fi
+  fi
+
+  printf "\n  🌿  Creating new theme...\n"
+  printf "  🌿  Generating theme colors...\n"
+  get_colors
+  set_colors
+  printf "  🌿  Creating theme file...\n"
+  create_file
+  printf "  🌿  Opening theme file...\n"
+  open_file
+  printf "  🌿  Done!\n\n"
+}
+
+hue_open() {
+
+  # If no theme specified, open active one.
+  if [ -z $1 ]; then
+    printf "\n  🌿  Opening theme file...\\nn"
+    open "$HOME/.hue/active/index.html"
+    return
+  fi
+
+  # Specified theme has not been generated.
+  if [ ! -f "$HOME/.hue/themes/$1/index.html" ]; then
+    print_header "open"
+    printf "  Theme does not exist.\n\n"
+    return
+  fi
+
+  printf "\n  🌿  Opening theme file...\n\n"
+  open "$HOME/.hue/themes/$1/index.html"
+
+}
+
+hue_copy() {
+  printf "Copying $1\n"
+}
+
+hue_list() {
+  print_header "list"
+  ls "$HOME/.hue/themes/"
+}
+
+hue() {
+  version=0.1
+
+  source args
+
+  _command=$1; shift
+  if type "hue_$_command" > /dev/null 2>&1; then
+    "hue_$_command" "$@"
+  else
+    unknown $_command
+  fi
 
   # print_hex
   # convert_colors
@@ -38,7 +127,7 @@ open_file() {
 }
 
 create_file() {
-  page="$HOME/.hue/themes/$theme/$theme.html"
+  page="$HOME/.hue/themes/$theme/index.html"
   mkdir -p "$HOME/.hue/themes/$theme/"
   cp "$path" "$HOME/.hue/themes/$theme/wal.$ext"
   cp html/template.html "$page"
