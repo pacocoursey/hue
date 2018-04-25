@@ -148,12 +148,6 @@ hue() {
     unknown $_command
   fi
 
-  # print_hex
-  # convert_colors
-  # print_colors
-  # print_256
-  # create_file
-  # adjust_colors
 }
 
 set_colors() {
