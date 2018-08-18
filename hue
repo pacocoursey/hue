@@ -4,15 +4,13 @@ hue_activate() {
 
   # hue activate was called without theme name.
   if [ -z $1 ]; then
-    print_header "activate"
-    printf "  Cannot activate an unspecified theme.\n\n"
+    printf "\n  🌿  Cannot activate an unspecified theme.\n\n"
     return;
   fi
 
   # Specified theme has not been generated.
   if [ ! -d $HOME/.hue/themes/$1/ ]; then
-    print_header "activate"
-    printf "  Theme does not exist.\n\n"
+    printf "\n  🌿  Theme does not exist.\n\n"
     return;
   fi
 
@@ -27,15 +25,13 @@ hue_delete() {
 
   # hue delete was called without theme name.
   if [ -z $1 ]; then
-    print_header "delete"
-    printf "  Cannot delete an unspecified theme.\n\n"
+    printf "\n  🌿  Cannot delete an unspecified theme.\n\n"
     return;
   fi
 
   # Specified theme has not been generated.
   if [ ! -d $HOME/.hue/themes/$1/ ]; then
-    print_header "delete"
-    printf "  Theme does not exist.\n\n"
+    printf "\n  🌿  Theme does not exist.\n\n"
     return;
   fi
 
@@ -48,8 +44,7 @@ hue_create() {
 
   # Specified image cannot be found.
   if [ ! -f $1 ]; then
-    print_header "create"
-    printf "  Image not found.\n\n"
+    printf "\n  🌿  Image not found.\n\n"
     return
   fi
 
@@ -58,26 +53,24 @@ hue_create() {
   file=${path##*/}
   theme=${file%.*}
 
-  # Ensure ~/.hue/themes/ exists.
-  if [ ! -d $HOME/.hue/themes/ ]; then
-    mkdir -p "$HOME/.hue/themes/"
-  fi
-
   # Handle theme conflicts.
   if [ -d $HOME/.hue/themes/$theme/ ]; then
-    print_header "create"
-    printf "  Theme already exists. Replace it? [y/n]: "
+    printf "\n  🌿  Theme already exists. Replace it? [y/n]: "
     read replace
 
     if [ $replace != "y" ]; then
       printf "  Theme was not changed.\n\n"
       return
     fi
+
+    rm -rf "$HOME/.hue/themes/$theme/"
   fi
 
   printf "\n  🌿  Creating new theme...\n"
   printf "  🌿  Generating theme colors...\n"
-  get_colors
+  get_ui_colors
+  get_theme_colors
+  # print_hex
   set_colors
   printf "  🌿  Creating theme file...\n"
   create_file
@@ -97,8 +90,7 @@ hue_open() {
 
   # Specified theme has not been generated.
   if [ ! -f "$HOME/.hue/themes/$1/index.html" ]; then
-    print_header "open"
-    printf "  Theme does not exist.\n\n"
+    printf "\n  🌿  Theme does not exist.\n\n"
     return
   fi
 
@@ -118,8 +110,7 @@ hue_copy() {
 
   # Specified theme has not been generated.
   if [ ! -d $HOME/.hue/themes/$1/ ]; then
-    print_header "copy"
-    printf "  Theme does not exist.\n\n"
+    printf "\n  🌿  Theme does not exist.\n\n"
     return
   fi
 
@@ -141,6 +132,11 @@ hue() {
 
   source args
 
+  # Ensure that ~/.hue/themes exists.
+  if [ ! -d $HOME/.hue/ ]; then
+    mkdir -p "$HOME/.hue/themes/"
+  fi
+
   _command=$1; shift
   if type "hue_$_command" > /dev/null 2>&1; then
     "hue_$_command" "$@"
@@ -157,6 +153,24 @@ set_colors() {
   green="${colors[3]}"
   blue="${colors[4]}"
   white="${colors[5]}"
+
+  color1="${theme_colors[0]}"
+  color2="${theme_colors[1]}"
+  color3="${theme_colors[2]}"
+  color4="${theme_colors[3]}"
+  color5="${theme_colors[4]}"
+  color6="${theme_colors[5]}"
+  color7="${theme_colors[6]}"
+  color8="${theme_colors[7]}"
+  color9="${theme_colors[8]}"
+  color10="${theme_colors[9]}"
+  color11="${theme_colors[10]}"
+  color12="${theme_colors[11]}"
+  color13="${theme_colors[12]}"
+  color14="${theme_colors[13]}"
+  color15="${theme_colors[14]}"
+  color16="${theme_colors[15]}"
+
 }
 
 open_file() {
@@ -165,8 +179,18 @@ open_file() {
 
 create_file() {
   page="$HOME/.hue/themes/$theme/index.html"
+
+  # Create theme directory
   mkdir -p "$HOME/.hue/themes/$theme/"
+
+  # Create theme wallpaper
   cp "$path" "$HOME/.hue/themes/$theme/wal.$ext"
+
+  # Create theme colors
+  touch "$HOME/.hue/themes/$theme/colors"
+  print_theme_hex >> "$HOME/.hue/themes/$theme/colors"
+
+  # Create theme page
   cp html/template.html "$page"
 
   sed -i '' "s/{{black}}/$black/g" "$page"
@@ -176,12 +200,34 @@ create_file() {
   sed -i '' "s/{{blue}}/$blue/g" "$page"
   sed -i '' "s/{{white}}/$white/g" "$page"
 
+  sed -i '' "s/{{color1}}/$color1/g" "$page"
+  sed -i '' "s/{{color2}}/$color2/g" "$page"
+  sed -i '' "s/{{color3}}/$color3/g" "$page"
+  sed -i '' "s/{{color4}}/$color4/g" "$page"
+  sed -i '' "s/{{color5}}/$color5/g" "$page"
+  sed -i '' "s/{{color6}}/$color6/g" "$page"
+  sed -i '' "s/{{color7}}/$color7/g" "$page"
+  sed -i '' "s/{{color8}}/$color8/g" "$page"
+  sed -i '' "s/{{color9}}/$color9/g" "$page"
+  sed -i '' "s/{{color10}}/$color10/g" "$page"
+  sed -i '' "s/{{color11}}/$color11/g" "$page"
+  sed -i '' "s/{{color12}}/$color12/g" "$page"
+  sed -i '' "s/{{color13}}/$color13/g" "$page"
+  sed -i '' "s/{{color14}}/$color14/g" "$page"
+  sed -i '' "s/{{color15}}/$color15/g" "$page"
+  sed -i '' "s/{{color16}}/$color16/g" "$page"
+
+
   sed -i '' "s/{{path}}/wal.jpg/g" "$page"
   sed -i '' "s/{{theme}}/$theme/g" "$page"
 }
 
-get_colors() {
+get_ui_colors() {
   colors=($(convert "$path" +dither -colors 6 -unique-colors txt:- | grep -E -o " \#.{6}"))
+}
+
+get_theme_colors() {
+  theme_colors=($(convert "$path" +dither -colors 16 -unique-colors txt:- | grep -E -o " \#.{6}"))
 }
 
 convert_colors() {
@@ -199,6 +245,10 @@ print_256() {
 
 print_hex() {
   printf '%s\n' "${colors[@]}"
+}
+
+print_theme_hex() {
+  printf '%s\n' "${theme_colors[@]}"
 }
 
 print_colors() {
